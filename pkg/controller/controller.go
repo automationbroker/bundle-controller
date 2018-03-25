@@ -4,6 +4,10 @@ import (
 	"reflect"
 	"time"
 
+	//      automationbrokerv1 "github.com/automationbroker/broker-client-go/client/clientset/versioned/typed/automationbroker.io/v1"
+	// v1 "github.com/automationbroker/broker-client-go/pkg/apis/automationbroker.io/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/automationbroker/bundle-controller/pkg/config"
 	"github.com/automationbroker/bundle-controller/pkg/log"
 	"github.com/automationbroker/bundle-controller/pkg/resources"
@@ -24,14 +28,18 @@ func CreateController() Controller {
 	log.Info("===== Starting Bundle Controller =====")
 
 	conf := config.Config{
-		SleepTime: "1s",
-		Resource:  "pod",
-		Namespace: "ansible-service-broker",
+		SleepTime:   "1s",
+		Resource:    "pod",
+		Namespace:   "ansible-service-broker",
+		BundleID:    "d889087d9f39d5b09a06842518f5d9e2",
+		BundleParam: "pods",
 	}
 
-	c := Controller{config: conf}
-
-	return c
+	err = resources.NewCRDClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return Controller{config: conf}
 }
 
 func (c *Controller) Start() {
@@ -55,9 +63,16 @@ func (c *Controller) Start() {
 			log.Fatal(err)
 		}
 
+		// Check if the state has changed
 		if !reflect.DeepEqual(oldState, currentState) {
-			// Check if Bundle CRD matches
-			log.Debug("Checking if Bundle CRD parameters match.")
+			log.Info("** State Change **")
+
+			log.Infof("Loading Bundle CRD: '%v'...", c.config.BundleID)
+			b, err := resources.Bundle.Bundles(c.config.Namespace).Get(c.config.BundleID, metav1.GetOptions{})
+			if err != nil {
+				log.Errorf("Failed to load Bundle '%v' in namespace '%v'", c.config.BundleID, c.config.Namespace)
+			}
+			status.UpdateState(currentState, b, c.config.Namespace, c.config.BundleParam)
 		}
 
 		log.Infof("Current list of items: %v", currentState)

@@ -997,22 +997,6 @@ func (r *Lexer) Float32() float32 {
 	return float32(n)
 }
 
-func (r *Lexer) Float32Str() float32 {
-	s, b := r.unsafeString()
-	if !r.Ok() {
-		return 0
-	}
-	n, err := strconv.ParseFloat(s, 32)
-	if err != nil {
-		r.addNonfatalError(&LexerError{
-			Offset: r.start,
-			Reason: err.Error(),
-			Data:   string(b),
-		})
-	}
-	return float32(n)
-}
-
 func (r *Lexer) Float64() float64 {
 	s := r.number()
 	if !r.Ok() {
@@ -1025,22 +1009,6 @@ func (r *Lexer) Float64() float64 {
 			Offset: r.start,
 			Reason: err.Error(),
 			Data:   s,
-		})
-	}
-	return n
-}
-
-func (r *Lexer) Float64Str() float64 {
-	s, b := r.unsafeString()
-	if !r.Ok() {
-		return 0
-	}
-	n, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		r.addNonfatalError(&LexerError{
-			Offset: r.start,
-			Reason: err.Error(),
-			Data:   string(b),
 		})
 	}
 	return n

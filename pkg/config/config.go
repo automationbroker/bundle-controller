@@ -10,4 +10,10 @@ type Config struct {
 	// Location of the resource.  Using a Kubernetes term, but this could be
 	// translated as location
 	Namespace string
+
+	// ID of the bundle the controller is managing
+	BundleID string
+
+	// Bundle parameter that will be dynamically updated
+	BundleParam string
 }
