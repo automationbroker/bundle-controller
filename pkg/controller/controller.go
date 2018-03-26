@@ -40,6 +40,12 @@ func CreateController() Controller {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	_, err = resources.Bundle.Bundles(os.Getenv("NAMESPACE")).Get(os.Getenv("BUNDLEID"), metav1.GetOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return Controller{config: conf}
 }
 
