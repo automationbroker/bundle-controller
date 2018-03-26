@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"os"
 	"reflect"
 	"time"
 
@@ -28,11 +29,11 @@ func CreateController() Controller {
 	log.Info("===== Starting Bundle Controller =====")
 
 	conf := config.Config{
-		SleepTime:   "1s",
-		Resource:    "pod",
-		Namespace:   "ansible-service-broker",
-		BundleID:    "d889087d9f39d5b09a06842518f5d9e2",
-		BundleParam: "pods",
+		SleepTime:   os.Getenv("SLEEPTIME"),
+		Resource:    os.Getenv("RESOURCE"),
+		Namespace:   os.Getenv("NAMESPACE"),
+		BundleID:    os.Getenv("BUNDLEID"),
+		BundleParam: os.Getenv("BUNDLEPARAM"),
 	}
 
 	err = resources.NewCRDClient()

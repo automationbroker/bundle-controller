@@ -60,7 +60,7 @@ func NewCRDClient() error {
 	// library
 	clientConfig, err := rest.InClusterConfig()
 	if err != nil {
-		log.Warning("Failed to create a InternalClientSet: %v.", err)
+		log.Warningf("Failed to create a InternalClientSet: %v.", err)
 
 		log.Debug("Checking for a local Cluster Config")
 		clientConfig, err = createClientConfigFromFile(homedir.HomeDir() + "/.kube/config")
