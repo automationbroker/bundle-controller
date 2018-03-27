@@ -14,6 +14,9 @@ type Config struct {
 	// ID of the bundle the controller is managing
 	BundleID string
 
+	// FQName of the bundle
+	BundleName string
+
 	// Bundle parameter that will be dynamically updated
 	BundleParam string
 }

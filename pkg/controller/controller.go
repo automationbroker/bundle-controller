@@ -33,6 +33,7 @@ func CreateController() Controller {
 		Resource:    os.Getenv("RESOURCE"),
 		Namespace:   os.Getenv("NAMESPACE"),
 		BundleID:    os.Getenv("BUNDLEID"),
+		BundleName:  os.Getenv("BUNDLENAME"),
 		BundleParam: os.Getenv("BUNDLEPARAM"),
 	}
 
@@ -41,9 +42,33 @@ func CreateController() Controller {
 		log.Fatal(err)
 	}
 
-	_, err = resources.Bundle.Bundles(os.Getenv("NAMESPACE")).Get(os.Getenv("BUNDLEID"), metav1.GetOptions{})
-	if err != nil {
-		log.Fatal(err)
+	if conf.BundleID != "" && conf.BundleName == "" {
+		_, err = resources.Bundle.Bundles(conf.Namespace).Get(conf.BundleID, metav1.GetOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else if conf.BundleName != "" {
+		bundles, err := resources.Bundle.Bundles(conf.Namespace).List(metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Debugf("Looking for Bundle with Name '%v'", conf.BundleName)
+		var count int
+		for c, b := range bundles.Items {
+			log.Debug(b.Spec.FQName)
+			if b.Spec.FQName == conf.BundleName {
+				conf.BundleID = b.Name
+				log.Debugf("Found matching bundle '%v'", conf.BundleName)
+				break
+			}
+			count = c
+		}
+		if count == len(bundles.Items)-1 {
+			log.Fatalf("Didn't find Bundle '%v'", conf.BundleName)
+		}
+	} else {
+		log.Fatal("BUNDLEID or BUNDLENAME is a required environment var")
 	}
 
 	return Controller{config: conf}
