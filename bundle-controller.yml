@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bundle-controller-config
+  namespace: "ansible-service-broker"
+data:
+  sleeptime: "5s"
+  resource: "pod"
+  namespace: "ansible-service-broker"
+  bundleid: "d889087d9f39d5b09a06842518f5d9e2"
+  bundleparam: "pods"
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bundle-controller
+spec:
+  serviceAccount: asb
+  containers:
+  - image: ansibleplaybookbundle/bundle-controller:latest
+    imagePullPolicy: IfNotPresent
+    name: bundle-controller
+    env:
+      - name: SLEEPTIME
+        valueFrom:
+          configMapKeyRef:
+            name: bundle-controller-config
+            key: sleeptime
+      - name: RESOURCE
+        valueFrom:
+          configMapKeyRef:
+            name: bundle-controller-config
+            key: resource
+      - name: NAMESPACE
+        valueFrom:
+          configMapKeyRef:
+            name: bundle-controller-config
+            key: namespace
+      - name: BUNDLEID
+        valueFrom:
+          configMapKeyRef:
+            name: bundle-controller-config
+            key: bundleid
+      - name: BUNDLEPARAM
+        valueFrom:
+          configMapKeyRef:
+            name: bundle-controller-config
+            key: bundleparam
+  restartPolicy: Always
