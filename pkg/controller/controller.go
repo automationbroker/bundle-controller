@@ -103,6 +103,7 @@ func (c *Controller) Start() {
 			b, err := resources.Bundle.Bundles(c.config.Namespace).Get(c.config.BundleID, metav1.GetOptions{})
 			if err != nil {
 				log.Errorf("Failed to load Bundle '%v' in namespace '%v'", c.config.BundleID, c.config.Namespace)
+				log.Error(err)
 			}
 			status.UpdateState(currentState, b, c.config.Namespace, c.config.BundleParam)
 		}

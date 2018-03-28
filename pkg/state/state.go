@@ -35,6 +35,7 @@ var planIndex, paramIndex int
 
 // UpdateState - Update the Bundle CRD
 func (s State) UpdateState(currentState []string, bundle *v1.Bundle, namespace string, bundleParam string) error {
+	log.Info("Update State - Change the Bundle CRD to reflect the current state")
 	if paramFound {
 		// Check if Bundle CRD matches
 		log.Debug("Checking if Bundle CRD parameters match.")
@@ -42,17 +43,22 @@ func (s State) UpdateState(currentState []string, bundle *v1.Bundle, namespace s
 			// Update the Bundle Enum with the currentState
 			updateBundle(currentState, bundle, namespace)
 		}
-		log.Info("Bundle parameters updated!")
 	} else {
+		log.Debugf("Looking for Parameter '%v'", bundleParam)
 		for p, plan := range bundle.Spec.Plans {
+			log.Debugf("Plan: %v", plan.Name)
 			for a, param := range plan.Parameters {
+				log.Debugf("   Parameter: %v", param.Name)
 				if param.Name == bundleParam {
 					// Cache the location of the param we want to update
 					planIndex = p
 					paramIndex = a
 					paramFound = true
 
-					updateBundle(currentState, bundle, namespace)
+					log.Debug("Checking if Bundle CRD parameters match.")
+					if !reflect.DeepEqual(bundle.Spec.Plans[planIndex].Parameters[paramIndex].Enum, currentState) {
+						updateBundle(currentState, bundle, namespace)
+					}
 				}
 			}
 		}
@@ -69,4 +75,5 @@ func updateBundle(currentState []string, bundle *v1.Bundle, namespace string) {
 		// TODO: try again later on a failure
 		log.Errorf("Failed to update Bundle: %v", err)
 	}
+	log.Info("Bundle parameters updated!")
 }
